@@ -1,41 +1,70 @@
 package com.example.smallP.entity;
 
 import jakarta.persistence.*;
+import java.util.Date;
 
 @Entity
-@Table(name= "books")
+@Table(name= "book")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
-    @Column(name= "bookname")
-    private String bookname;
-    @Column(name= "price")
-    private String price;
 
-    @Column(name= "description")
-    private String description;
+    @Lob
+    @Column(name = "thumnail")
+    private String thumnail;
 
-//    @Column(name= "categoryId")
-//    private String categoryId;
+    @Column(name = "slide", columnDefinition = "JSON")
+    private String slide;
 
-    @Column(name= "author")
+    @Column(name = "maintext")
+    private String maintext;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "author")
     private String author;
 
+    @Column(name = "price", precision = 10, scale = 3)
+    private double price;
+
+    @Column(name = "sold")
+    private int sold;
+
+    @Column(name = "quantity")
+    private int quantity;
+
+    @Column(name = "create_at")
+    @Temporal(TemporalType.DATE)
+    private Date createAt;
+
+    @Column(name = "update_at")
+    @Temporal(TemporalType.DATE)
+    private Date updateAt;
+
+
+    // default constructor
     public  Book(){
 
     }
-    // define constructors
-
-    public Book(String bookname, String price, String description, String author) {
-        this.bookname = bookname;
-        this.price = price;
-        this.description = description;
-//        this.categoryId = categoryId;
+    //constructor
+    public Book(String thumnail, String slide, String maintext, String category, String author, double price, int sold, int quantity, Date createAt, Date updateAt) {
+        this.thumnail = thumnail;
+        this.slide = slide;
+        this.maintext = maintext;
+        this.category = category;
         this.author = author;
+        this.price = price;
+        this.sold = sold;
+        this.quantity = quantity;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
     }
 
-    //Getter/Setter
+
+    // getter & setter
 
     public int getId() {
         return id;
@@ -45,37 +74,37 @@ public class Book {
         this.id = id;
     }
 
-    public String getBookname() {
-        return bookname;
+    public String getThumnail() {
+        return thumnail;
     }
 
-    public void setBookname(String bookname) {
-        this.bookname = bookname;
+    public void setThumnail(String thumnail) {
+        this.thumnail = thumnail;
     }
 
-    public String getPrice() {
-        return price;
+    public String getSlide() {
+        return slide;
     }
 
-    public void setPrice(String price) {
-        this.price = price;
+    public void setSlide(String slide) {
+        this.slide = slide;
     }
 
-    public String getDescription() {
-        return description;
+    public String getMaintext() {
+        return maintext;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setMaintext(String maintext) {
+        this.maintext = maintext;
     }
 
-//    public String getCategoryId() {
-//        return categoryId;
-//    }
-//
-//    public void setCategoryId(String categoryId) {
-//        this.categoryId = categoryId;
-//    }
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public String getAuthor() {
         return author;
@@ -85,18 +114,44 @@ public class Book {
         this.author = author;
     }
 
-    //toString
+    public double getPrice() {
+        return price;
+    }
 
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", bookname='" + bookname + '\'' +
-                ", price='" + price + '\'' +
-                ", description='" + description + '\'' +
-//                ", categoryId='" + categoryId + '\'' +
-                ", author='" + author + '\'' +
-                '}';
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public int getSold() {
+        return sold;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    public Date getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(Date updateAt) {
+        this.updateAt = updateAt;
     }
 }
 
