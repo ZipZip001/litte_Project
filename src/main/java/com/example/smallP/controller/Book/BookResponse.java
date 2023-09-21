@@ -1,6 +1,6 @@
-package com.example.smallP;
-import java.util.List;
-public class ApiResponse <T>{
+package com.example.smallP.controller.Book;
+
+public class BookResponse<T>{
     private T result;
     private Meta meta;
 

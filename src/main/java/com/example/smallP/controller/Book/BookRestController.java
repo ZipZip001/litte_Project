@@ -1,6 +1,5 @@
-package com.example.smallP.controller;
+package com.example.smallP.controller.Book;
 
-import com.example.smallP.ApiResponse;
 import com.example.smallP.entity.Book;
 import com.example.smallP.service.Book.BookService;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ public class BookRestController {
     }
 
     @GetMapping("/books")
-    public ApiResponse<List<Book>> findAll(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "5") int pageSize){
+    public BookResponse<List<Book>> findAll(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "5") int pageSize){
             List<Book> books = bookService.findAll();
 
             int totalBooks = books.size();
@@ -29,8 +28,8 @@ public class BookRestController {
 
             List<Book> paginatedBooks = books.subList(startIndex, endIndex);
 
-            ApiResponse<List<Book>> response = new ApiResponse<>();
-            ApiResponse.Meta meta = new ApiResponse.Meta(current, pageSize, totalPages, totalBooks);
+            BookResponse<List<Book>> response = new BookResponse<>();
+            BookResponse.Meta meta = new BookResponse.Meta(current, pageSize, totalPages, totalBooks);
             response.setMeta(meta);
             response.setResult(paginatedBooks);
 
