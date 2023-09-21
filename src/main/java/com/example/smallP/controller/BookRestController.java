@@ -18,13 +18,23 @@ public class BookRestController {
     }
 
     @GetMapping("/books")
-    public ApiResponse<List<Book>> findAll(){
-        List<Book> books = bookService.findAll();
+    public ApiResponse<List<Book>> findAll(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "5") int pageSize){
+            List<Book> books = bookService.findAll();
 
-        ApiResponse<List<Book>> response = new ApiResponse<>();
-        response.setResult(books);
+            int totalBooks = books.size();
+            int totalPages = (int) Math.ceil((double) totalBooks / pageSize);
 
-        return response;
+            int startIndex = (current - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, totalBooks);
+
+            List<Book> paginatedBooks = books.subList(startIndex, endIndex);
+
+            ApiResponse<List<Book>> response = new ApiResponse<>();
+            ApiResponse.Meta meta = new ApiResponse.Meta(current, pageSize, totalPages, totalBooks);
+            response.setMeta(meta);
+            response.setResult(paginatedBooks);
+
+            return response;
     }
 
     @GetMapping("/books/{bookId}")
