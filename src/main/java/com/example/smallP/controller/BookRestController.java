@@ -1,5 +1,6 @@
 package com.example.smallP.controller;
 
+import com.example.smallP.ApiResponse;
 import com.example.smallP.entity.Book;
 import com.example.smallP.service.Book.BookService;
 import org.springframework.web.bind.annotation.*;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class BookRestController {
     private BookService bookService;
 
@@ -17,8 +18,13 @@ public class BookRestController {
     }
 
     @GetMapping("/books")
-    public List<Book> findAll(){
-        return bookService.findAll();
+    public ApiResponse<List<Book>> findAll(){
+        List<Book> books = bookService.findAll();
+
+        ApiResponse<List<Book>> response = new ApiResponse<>();
+        response.setResult(books);
+
+        return response;
     }
 
     @GetMapping("/books/{bookId}")

@@ -7,6 +7,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -14,6 +15,21 @@ public class BookDAOJpaImpl implements BookDAO {
 
     private EntityManager entityManager;
 
+    public class ResultWrapper {
+        private List<Book> result;
+
+        public ResultWrapper(List<Book> result) {
+            this.result = result;
+        }
+
+        public List<Book> getResult() {
+            return result;
+        }
+
+        public void setResult(List<Book> result) {
+            this.result = result;
+        }
+    }
     @Autowired
     public BookDAOJpaImpl(EntityManager theEntityManager){
         entityManager = theEntityManager;
@@ -26,6 +42,7 @@ public class BookDAOJpaImpl implements BookDAO {
 
         // execute query and get result list
         List<Book> allBook = theQuery.getResultList();
+
 
         return allBook;
     }
