@@ -2,9 +2,17 @@ package com.example.smallP.controller.Book;
 
 import com.example.smallP.entity.Book;
 import com.example.smallP.service.Book.BookService;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -17,17 +25,18 @@ public class BookRestController {
         bookService = theBookService;
     }
 
-    @GetMapping("/books")
-    public BookResponse<List<Book>> findAll(
+    @GetMapping("/book")
+    public ResponseEntity<ObjectNode> findAll(
             @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "5") int pageSize,
-            @RequestParam(required = false ) String category
+            @RequestParam(required = false ) String[] category
                 ){
+            ObjectMapper objectMapper = new ObjectMapper();
             List<Book> books = bookService.findAll();
             // category
-            if (category != null && !category.isEmpty()) {
+            if (category != null && category.length > 0) {
                 books = books.stream()
-                        .filter(book -> category.equals(book.getCategory()))
+                        .filter(book -> Arrays.asList(category).contains(book.getCategory()))
                         .collect(Collectors.toList());
             }
 
@@ -45,7 +54,12 @@ public class BookRestController {
             response.setMeta(meta);
             response.setResult(paginatedBooks);
 
-            return response;
+
+            // Đặt "data" bên trong một đối tượng JSON bổ sung
+            ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+            dataNode.set("data", objectMapper.valueToTree(response));
+
+            return new ResponseEntity<>(dataNode, HttpStatus.OK);
     }
 
     @GetMapping("/books/{bookId}")

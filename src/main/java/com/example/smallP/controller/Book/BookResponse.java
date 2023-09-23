@@ -1,10 +1,12 @@
 package com.example.smallP.controller.Book;
+import com.example.smallP.entity.Book;
 
+import java.util.List;
 public class BookResponse<T>{
-    private T result;
+    private List<Book> result;
     private Meta meta;
 
-    public T getResult() {
+    public List<Book> getResult() {
         return result;
     }
     public Meta getMeta() {
@@ -15,7 +17,7 @@ public class BookResponse<T>{
         this.meta = meta;
     }
 
-    public void setResult(T result) {
+    public void setResult(List<Book> result) {
         this.result = result;
     }
 
