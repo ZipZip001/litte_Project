@@ -1,15 +1,39 @@
 package com.example.smallP.service.Category;
 
 import com.example.smallP.entity.Category;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface CategoryService {
-    List<Category> findAll();
+@Service
+public class CategoryService {
 
-    Category findById (int theId);
+    private final CategoryRepository categoryRepository;
 
-    Category save (Category theCategory);
+    @Autowired
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
-    void deleteById(int theId);
+    public String getCategoryListAsJson() {
+        List<Category> categoryList = categoryRepository.findAll();
+
+        // Tạo đối tượng JSON
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("statusCode", 200);
+        jsonObject.addProperty("message", "");
+
+        // Tạo mảng JSON và thêm dữ liệu từ danh sách
+        JsonArray dataArray = new JsonArray();
+        categoryList.forEach(category -> dataArray.add(category.getCategory()));
+
+        jsonObject.add("data", dataArray);
+
+        // Chuyển đối tượng JSON thành chuỗi JSON và trả về
+        return jsonObject.toString();
+    }
 }
+

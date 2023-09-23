@@ -2,66 +2,29 @@ package com.example.smallP.controller.Category;
 
 import com.example.smallP.entity.Category;
 import com.example.smallP.service.Category.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/category")
 public class CategoryRestController {
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
-
-    public CategoryRestController(CategoryService theCategoryService){
-        categoryService = theCategoryService;
+    @Autowired
+    public CategoryRestController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
-    @GetMapping("/category")
-    public List<Category> findAll(){
-        return categoryService.findAll();
-    }
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getAllCategoriesAsJson() {
+        // Gọi phương thức của CategoryService để lấy danh sách danh mục dưới dạng JSON
+        String categoryListJson = categoryService.getCategoryListAsJson();
 
-    @GetMapping("/category/{id}")
-    public Category getCategory(@PathVariable int categoryId){
-        Category theCategory = categoryService.findById(categoryId);
-
-        if (theCategory == null){
-            throw new RuntimeException("Category id not found -" +theCategory );
-        }
-        else {
-            return theCategory;
-        }
-    }
-
-    @PostMapping("/category")
-    public Category addCategory(@RequestBody Category theCategory){
-
-        theCategory.setId(0);
-
-        Category dbCategory = categoryService.save(theCategory);
-
-        return dbCategory;
-    }
-
-    @PutMapping("/category")
-    public Category updateCategory(@RequestBody Category theCategory){
-
-        Category dbCategory = categoryService.save(theCategory);
-        return  dbCategory;
-    }
-
-    @DeleteMapping("/category/{categoryId}")
-    public String delete(@PathVariable int categoryId){
-
-        Category tempUser = categoryService.findById(categoryId);
-
-        if (tempUser == null){
-            throw new RuntimeException("Category not found -" +categoryId);
-        }
-
-        categoryService.deleteById(categoryId);
-
-        return "Delete Category with id- " +categoryId;
+        // Trả về chuỗi JSON
+        return categoryListJson;
     }
 
 }
