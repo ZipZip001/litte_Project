@@ -5,6 +5,7 @@ import com.example.smallP.service.Book.BookService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -17,9 +18,20 @@ public class BookRestController {
     }
 
     @GetMapping("/books")
-    public BookResponse<List<Book>> findAll(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "5") int pageSize){
+    public BookResponse<List<Book>> findAll(
+            @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(required = false ) String category
+                ){
             List<Book> books = bookService.findAll();
+            // category
+            if (category != null && !category.isEmpty()) {
+                books = books.stream()
+                        .filter(book -> category.equals(book.getCategory()))
+                        .collect(Collectors.toList());
+            }
 
+            //current and pageSize
             int totalBooks = books.size();
             int totalPages = (int) Math.ceil((double) totalBooks / pageSize);
 

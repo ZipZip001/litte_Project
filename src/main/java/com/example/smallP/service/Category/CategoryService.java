@@ -23,8 +23,6 @@ public class CategoryService {
 
         // Tạo đối tượng JSON
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("statusCode", 200);
-        jsonObject.addProperty("message", "");
 
         // Tạo mảng JSON và thêm dữ liệu từ danh sách
         JsonArray dataArray = new JsonArray();
