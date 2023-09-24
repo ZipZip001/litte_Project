@@ -62,19 +62,24 @@ public class BookRestController {
             return new ResponseEntity<>(dataNode, HttpStatus.OK);
     }
 
-    @GetMapping("/books/{bookId}")
-    public Book getBook(@PathVariable int bookId){
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<ObjectNode> getBook(@PathVariable int bookId){
         Book theBook = bookService.findById(bookId);
 
-        if (theBook == null){
-            throw new RuntimeException("Book id not found -" +theBook);
+        ObjectMapper objectMapper = new ObjectMapper();
+        // Đặt "data" bên trong một đối tượng JSON bổ sung
+        ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+        dataNode.set("data", objectMapper.valueToTree(theBook));
+
+        if (dataNode == null){
+            throw new RuntimeException("Book id not found -" +dataNode);
         }
         else {
-            return theBook;
+            return new ResponseEntity<>(dataNode, HttpStatus.OK);
         }
     }
 
-    @PostMapping("/books")
+    @PostMapping("/book")
     public Book addUser(@RequestBody Book theBook){
 
         theBook.setId(0);
@@ -84,14 +89,14 @@ public class BookRestController {
         return dbBook;
     }
 
-    @PutMapping("/books")
+    @PutMapping("/book")
     public Book updateBook(@RequestBody Book theBook){
 
         Book dbBook = bookService.save(theBook);
         return  dbBook;
     }
 
-    @DeleteMapping("/books/{bookId}")
+    @DeleteMapping("/book/{bookId}")
     public String delete(@PathVariable int bookId){
 
         Book tempUser = bookService.findById(bookId);
