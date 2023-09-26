@@ -3,6 +3,7 @@ package com.example.smallP.dao.User;
 import com.example.smallP.dao.Book.BookDAO;
 import com.example.smallP.entity.User;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -69,6 +70,19 @@ public class UserDAOJpalmpl implements UserDAO {
         User theUser = entityManager.find(User.class, theId);
 
         entityManager.remove(theUser);
+    }
+    @Override
+    public User findByEmail(String email) {
+        // Tạo một truy vấn SQL hoặc HQL để tìm người dùng theo địa chỉ email
+        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+        query.setParameter("email", email);
+
+        try {
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            // Trả về null nếu không tìm thấy email nào phù hợp
+            return null;
+        }
     }
 }
 

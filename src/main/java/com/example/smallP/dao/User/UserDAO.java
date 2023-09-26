@@ -12,5 +12,9 @@ public interface UserDAO {
     User save (User theUser);
 
     void deleteById(int theId);
+
+    User findByEmail(String email);
+
+
 }
 

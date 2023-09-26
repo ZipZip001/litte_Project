@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "user")
+@Table(name = "userdata")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,10 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive;
 
+
+    @Column(name = "password")
+    private String password;
+
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -46,13 +50,14 @@ public class User {
 
     }
 
-    public User(String fullName, String email, String phone, String role, String avatar, boolean isActive, Date createdAt, Date updatedAt) {
+    public User(String fullName, String email, String phone, String role, String avatar, boolean isActive, String password, Date createdAt, Date updatedAt) {
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.role = role;
         this.avatar = avatar;
         this.isActive = isActive;
+        this.password = password;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -111,6 +116,14 @@ public class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Date getCreatedAt() {
