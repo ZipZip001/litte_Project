@@ -1,5 +1,6 @@
 package com.example.smallP.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.util.Date;
 
@@ -38,9 +39,11 @@ public class Book {
 
     @Column(name = "create_at")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createAt;
 
     @Column(name = "update_at")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date updateAt;
 

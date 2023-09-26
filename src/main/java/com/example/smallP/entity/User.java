@@ -1,41 +1,61 @@
-package com.example.smallP.entity;
 
+package com.example.smallP.entity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import java.util.Date;
 
 @Entity
-@Table(name= "users")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
-    @Column(name= "username")
-    private String username;
-    @Column(name= "email")
+
+    @Column(name = "fullName")
+    private String fullName;
+
+    @Column(name = "email")
     private String email;
-    @Column(name= "password")
-    private String password;
 
-    @Column(name= "is_admin")
-    private Boolean is_admin;
-
-    @Column(name= "phone")
+    @Column(name = "phone")
     private String phone;
+
+    @Column(name = "role")
+    private String role;
+
+    @Column(name = "avatar")
+    private String avatar;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    @Column(name = "create_at")
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date createdAt;
+
+    @Column(name = "update_at")
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date updatedAt;
+
+    // Constructors, getters, and setters
 
     public User(){
 
     }
-    // define constructors
 
-    public User(String username, String email, String password, Boolean is_admin, String phone) {
-        this.username = username;
+    public User(String fullName, String email, String phone, String role, String avatar, boolean isActive, Date createdAt, Date updatedAt) {
+        this.fullName = fullName;
         this.email = email;
-        this.password = password;
-        this.is_admin = is_admin;
         this.phone = phone;
+        this.role = role;
+        this.avatar = avatar;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
-
-
-    // define getter/setter
 
     public int getId() {
         return id;
@@ -45,12 +65,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -61,22 +81,6 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Boolean getIs_admin() {
-        return is_admin;
-    }
-
-    public void setIs_admin(Boolean is_admin) {
-        this.is_admin = is_admin;
-    }
-
     public String getPhone() {
         return phone;
     }
@@ -85,18 +89,43 @@ public class User {
         this.phone = phone;
     }
 
+    public String getRole() {
+        return role;
+    }
 
-    // define toString
+    public void setRole(String role) {
+        this.role = role;
+    }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", is_admin=" + is_admin +
-                ", phone='" + phone + '\'' +
-                '}';
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -27,8 +27,8 @@ public class BookRestController {
 
     @GetMapping("/book")
     public ResponseEntity<ObjectNode> findAll(
-            @RequestParam(defaultValue = "1") int current,
-            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(required = false) Integer current,
+            @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false ) String[] category
                 ){
             ObjectMapper objectMapper = new ObjectMapper();
@@ -39,9 +39,16 @@ public class BookRestController {
                         .filter(book -> Arrays.asList(category).contains(book.getCategory()))
                         .collect(Collectors.toList());
             }
+        int totalBooks = books.size();
+
+            // Kiểm tra nếu current và pageSize bị null, thì trả về toàn bộ dữ liệu
+            if (current == null || pageSize == null) {
+                current = 1; // Giá trị mặc định nếu current bị null
+                pageSize = totalBooks; // Trả về tất cả nếu pageSize bị null
+            }
 
             //current and pageSize
-            int totalBooks = books.size();
+
             int totalPages = (int) Math.ceil((double) totalBooks / pageSize);
 
             int startIndex = (current - 1) * pageSize;
@@ -80,7 +87,7 @@ public class BookRestController {
     }
 
     @PostMapping("/book")
-    public Book addUser(@RequestBody Book theBook){
+    public Book addBook(@RequestBody Book theBook){
 
         theBook.setId(0);
 

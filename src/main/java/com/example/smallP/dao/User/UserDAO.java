@@ -1,4 +1,4 @@
-package com.example.smallP.dao;
+package com.example.smallP.dao.User;
 
 import com.example.smallP.entity.User;
 
@@ -13,3 +13,4 @@ public interface UserDAO {
 
     void deleteById(int theId);
 }
+

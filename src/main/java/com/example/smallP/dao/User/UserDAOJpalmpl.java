@@ -1,20 +1,37 @@
-package com.example.smallP.dao;
+package com.example.smallP.dao.User;
 
+import com.example.smallP.dao.Book.BookDAO;
 import com.example.smallP.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class UserDAOJpaImpl implements UserDAO {
+public class UserDAOJpalmpl implements UserDAO {
 
     private EntityManager entityManager;
 
+    public class ResultWrapper {
+        private List<User> result;
+
+        public ResultWrapper(List<User> result) {
+            this.result = result;
+        }
+
+        public List<User> getResult() {
+            return result;
+        }
+
+        public void setResult(List<User> result) {
+            this.result = result;
+        }
+    }
     @Autowired
-    public UserDAOJpaImpl(EntityManager theEntityManager){
+    public UserDAOJpalmpl(EntityManager theEntityManager){
         entityManager = theEntityManager;
     }
     @Override
@@ -24,9 +41,10 @@ public class UserDAOJpaImpl implements UserDAO {
         TypedQuery<User> theQuery = entityManager.createQuery("from User", User.class);
 
         // execute query and get result list
-        List<User> employees = theQuery.getResultList();
+        List<User> allUser = theQuery.getResultList();
 
-        return employees;
+
+        return allUser;
     }
 
     @Override
@@ -41,9 +59,9 @@ public class UserDAOJpaImpl implements UserDAO {
 
     @Override
     public User save(User theUser) {
-        User dbEmployee = entityManager.merge((theUser)); // insert id = 0  and update if id > 0
+        User dbUser = entityManager.merge((theUser)); // insert id = 0  and update if id > 0
 
-        return dbEmployee;
+        return dbUser;
     }
 
     @Override
@@ -53,3 +71,4 @@ public class UserDAOJpaImpl implements UserDAO {
         entityManager.remove(theUser);
     }
 }
+

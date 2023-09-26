@@ -1,15 +1,17 @@
 package com.example.smallP.service.User;
 
-import com.example.smallP.dao.UserDAO;
+
+
+
+import com.example.smallP.dao.User.UserDAO;
 import com.example.smallP.entity.User;
-import com.example.smallP.service.User.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserDAO {
 
     private UserDAO userDAO;
 

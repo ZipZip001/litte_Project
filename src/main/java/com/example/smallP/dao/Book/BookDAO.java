@@ -1,7 +1,6 @@
 package com.example.smallP.dao.Book;
 
 import com.example.smallP.entity.Book;
-import com.example.smallP.entity.User;
 
 import java.util.List;
 
