@@ -3,6 +3,7 @@ package com.example.smallP.controller.User;
 import com.example.smallP.controller.User.UserResponse;
 import com.example.smallP.dao.User.UserDAO;
 import com.example.smallP.entity.User;
+import com.example.smallP.security.JwtService;
 import com.example.smallP.security.UserPassword;
 import com.example.smallP.service.User.DesginAPI.AuthResponse;
 import com.example.smallP.service.User.DesginAPI.UserData;
@@ -26,7 +27,8 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class UserRestController {
     private UserService userService;
-
+    @Autowired
+    private JwtService jwtService;
 
 
     public UserRestController(UserService theUserService){
@@ -120,17 +122,18 @@ public class UserRestController {
     }
 
     // login
-    @PostMapping("/login")
+    @PostMapping("/user/login")
     public ResponseEntity<UserMakeAPI> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
         String password = loginData.get("password");
 
-        // Kiểm tra xem người dùng với email đã cho có tồn tại không
+
+
         User user = userService.findByEmail(email);
 
         if (user != null && isPasswordCorrect(user, password)) {
             // Tạo access_token ngẫu nhiên
-            String accessToken = generateAccessToken();
+            String accessToken = jwtService.generateAccessToken(user);
 
             // Tạo đối tượng UserData và đặt thông tin người dùng
             UserData userData = new UserData();
@@ -146,13 +149,13 @@ public class UserRestController {
             authResponse.setAccess_token(accessToken);
             authResponse.setUser(userData);
 
-            // Đặt đối tượng AuthResponse vào đối tượng ApiResponse
+
             UserMakeAPI userMakeAPI = new UserMakeAPI();
             userMakeAPI.setData(authResponse);
 
             return new ResponseEntity<>(userMakeAPI, HttpStatus.OK);
         } else {
-            // Trường hợp đăng nhập không thành công
+
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
@@ -167,21 +170,50 @@ public class UserRestController {
     }
 
 
-    // Tạo access_token ngẫu nhiên - Đây là ví dụ đơn giản, trong thực tế bạn nên sử dụng các thư viện xác thực thực tế
-    private String generateAccessToken() {
-        // Đây là ví dụ đơn giản, bạn có thể tạo một chuỗi ngẫu nhiên dài hơn và an toàn hơn
-        return UUID.randomUUID().toString();
-    }
 
-    // Đăng ký
     @Autowired
     private UserPassword userPassword;
-
-    @PostMapping("/register")
+    @PostMapping("/user/register")
     public ResponseEntity<User> registerUser(@RequestBody User newUser) {
         User savedUser = userPassword.registerUser(newUser);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
+    @GetMapping("/user/profile")
+    public ResponseEntity<UserMakeAPI> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
+        // Kiểm tra xem có header Authorization không
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // Lấy access token từ header
+        String accessToken = authorizationHeader.replace("Bearer ", "");
+
+        // Giải mã access token để lấy thông tin người dùng
+        User user = jwtService.decodeAccessToken(accessToken);
+
+        // Kiểm tra xem access token có hợp lệ không
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // Tạo đối tượng UserData và đặt thông tin người dùng
+        UserData userData = new UserData();
+        userData.setEmail(user.getEmail());
+        userData.setPhone(user.getPhone());
+        userData.setFullName(user.getFullName());
+        userData.setRole(user.getRole());
+        userData.setAvatar(user.getAvatar());
+        userData.setId(user.getId());
+
+        // Đặt thông tin access_token và user vào đối tượng ApiResponse
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setUser(userData);
+
+        UserMakeAPI userMakeAPI = new UserMakeAPI();
+        userMakeAPI.setData(authResponse);
+
+        return new ResponseEntity<>(userMakeAPI, HttpStatus.OK);
+    }
 
 }
