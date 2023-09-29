@@ -17,4 +17,8 @@ public class UserPassword {
         newUser.setPassword(encodedPassword);
         return userRepository.save(newUser);
     }
+    public boolean isEmailExists(String email) {
+        User existingUser = userRepository.findByEmail(email);
+        return existingUser != null;
+    }
 }

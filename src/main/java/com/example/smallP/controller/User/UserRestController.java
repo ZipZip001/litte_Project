@@ -4,7 +4,10 @@ import com.example.smallP.controller.User.UserResponse;
 import com.example.smallP.dao.User.UserDAO;
 import com.example.smallP.entity.User;
 import com.example.smallP.security.JwtService;
+import com.example.smallP.security.LogoutRequest;
 import com.example.smallP.security.UserPassword;
+import com.example.smallP.security.UserRepository;
+import com.example.smallP.service.Token.AccessTokenManager;
 import com.example.smallP.service.User.DesginAPI.AuthResponse;
 import com.example.smallP.service.User.DesginAPI.UserData;
 import com.example.smallP.service.User.DesginAPI.UserMakeAPI;
@@ -19,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -100,11 +105,35 @@ public class UserRestController {
         return dbUser;
     }
 
-    @PutMapping("/user")
-    public User updateUser(@RequestBody User theUser){
+    @Autowired
+    private UserRepository userRepository;
 
-        User dbUser = userService.save(theUser);
-        return  dbUser;
+    @PutMapping("/user/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        // Tìm đối tượng người dùng hiện tại trong cơ sở dữ liệu
+        User existingUser = userRepository.findById(id).orElse(null);
+
+        // Kiểm tra xem người dùng có tồn tại không
+        if (existingUser == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Sao chép các trường mà bạn muốn thay đổi từ đối tượng updatedUser vào đối tượng người dùng hiện tại
+        if (updatedUser.getEmail() != null) {
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+        if (updatedUser.getFullName() != null) {
+            existingUser.setFullName(updatedUser.getFullName());
+        }
+        if (updatedUser.getPhone() != null) {
+            existingUser.setPhone(updatedUser.getPhone());
+        }
+        // Các trường khác cũng có thể được sao chép ở đây
+
+        // Lưu lại đối tượng người dùng đã được cập nhật vào cơ sở dữ liệu
+        User savedUser = userRepository.save(existingUser);
+
+        return ResponseEntity.ok(savedUser);
     }
 
     @DeleteMapping("/user/{userId}")
@@ -126,8 +155,6 @@ public class UserRestController {
     public ResponseEntity<UserMakeAPI> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
         String password = loginData.get("password");
-
-
 
         User user = userService.findByEmail(email);
 
@@ -171,12 +198,43 @@ public class UserRestController {
 
 
 
+
     @Autowired
     private UserPassword userPassword;
     @PostMapping("/user/register")
     public ResponseEntity<User> registerUser(@RequestBody User newUser) {
-        User savedUser = userPassword.registerUser(newUser);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        newUser.setRole("USER");
+        newUser.setActive(true);
+        newUser.setAvatar("https://png.pngtree.com/png-vector/20191113/ourlarge/pngtree-avatar-human-man-people-person-profile-user-abstract-circl-png-image_1983926.jpg");
+
+        // Kiểm tra xem email đã tồn tại hay chưa
+        if (userPassword.isEmailExists(newUser.getEmail())) {
+            User existingUser = new User(); // Tạo đối tượng User tạm thời không trả về mess được
+            return new ResponseEntity<>(existingUser, HttpStatus.BAD_REQUEST);
+        }
+        // Lấy thời gian hiện tại
+        Date currentTime = new Date();
+
+        // Định dạng thời gian thành "yyyy-MM-dd"
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = dateFormat.format(currentTime);
+
+        try {
+            // Chuyển đổi chuỗi thành kiểu Date
+            Date date = dateFormat.parse(formattedDate);
+
+            newUser.setCreatedAt(date);
+            newUser.setUpdatedAt(date);
+
+            // Lưu tài khoản vào cơ sở dữ liệu
+            User savedUser = userPassword.registerUser(newUser);
+
+            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        } catch (ParseException e) {
+            // Xử lý lỗi nếu có lỗi xảy ra trong quá trình chuyển đổi
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/user/profile")
@@ -197,23 +255,57 @@ public class UserRestController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        // Tạo đối tượng UserData và đặt thông tin người dùng
-        UserData userData = new UserData();
-        userData.setEmail(user.getEmail());
-        userData.setPhone(user.getPhone());
-        userData.setFullName(user.getFullName());
-        userData.setRole(user.getRole());
-        userData.setAvatar(user.getAvatar());
-        userData.setId(user.getId());
+        // Truy vấn cơ sở dữ liệu để lấy thông tin chi tiết của người dùng
+        Optional<User> userOptional = userRepository.findById((long) user.getId());
 
-        // Đặt thông tin access_token và user vào đối tượng ApiResponse
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setUser(userData);
+        if (userOptional.isPresent()) {
+            // Tạo đối tượng UserData và đặt thông tin người dùng từ cơ sở dữ liệu
+            User dbUser = userOptional.get();
+            UserData userData = new UserData();
+            userData.setEmail(dbUser.getEmail());
+            userData.setPhone(dbUser.getPhone());
+            userData.setFullName(dbUser.getFullName());
+            userData.setRole(dbUser.getRole());
+            userData.setAvatar(dbUser.getAvatar());
+            userData.setId(dbUser.getId());
 
-        UserMakeAPI userMakeAPI = new UserMakeAPI();
-        userMakeAPI.setData(authResponse);
+            // Đặt thông tin access_token và user vào đối tượng ApiResponse
+            AuthResponse authResponse = new AuthResponse();
+            authResponse.setUser(userData);
 
-        return new ResponseEntity<>(userMakeAPI, HttpStatus.OK);
+            UserMakeAPI userMakeAPI = new UserMakeAPI();
+            userMakeAPI.setData(authResponse);
+
+            return new ResponseEntity<>(userMakeAPI, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+    @Autowired
+    private AccessTokenManager accessTokenManager;
+
+    @PostMapping("/user/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        // Kiểm tra xem có header Authorization không
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            // Trích xuất access token từ header
+            String accessToken = authorizationHeader.replace("Bearer ", "");
+
+            // Kiểm tra xem access token có hợp lệ không
+            if (jwtService.validateAccessToken(accessToken)) {
+                // Nếu access token hợp lệ, hãy thực hiện xóa access token khỏi danh sách đang hoạt động
+                accessTokenManager.deleteAccessToken(accessToken);
+
+                // Trả về thông báo thành công
+                return ResponseEntity.ok("Logout successful");
+            }
+        }
+
+        // Nếu access token không hợp lệ hoặc không tồn tại, trả về lỗi không xác thực
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+
+
 
 }

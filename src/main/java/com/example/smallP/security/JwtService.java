@@ -1,10 +1,9 @@
 package com.example.smallP.security;
 
 import com.example.smallP.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.example.smallP.service.Token.AccessTokenManager;
+import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -53,6 +52,27 @@ public class JwtService {
             return null;
         }
     }
+    public boolean validateAccessToken(String accessToken) {
+        try {
+            // Giải mã access token
+            Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(accessToken).getBody();
+
+            // Kiểm tra thời hạn
+            Date expirationDate = claims.getExpiration();
+            Date now = new Date();
+            if (expirationDate.before(now)) {
+                return false; // Access token đã hết hạn
+            }
+
+            // Access token hợp lệ
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            // Xảy ra lỗi khi xác minh access token
+            return false;
+        }
+    }
+
+
 
     public Jws<Claims> parseToken(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);

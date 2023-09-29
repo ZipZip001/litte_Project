@@ -1,9 +1,6 @@
 package com.example.smallP.service.User;
 
 
-
-
-import com.example.smallP.dao.User.UserDAO;
 import com.example.smallP.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -17,10 +14,10 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private EntityManager entityManager;
-    private UserDAO userDAO;
+    private UserService userService;
 
-    public UserServiceImpl(UserDAO theUser){
-        userDAO = theUser;
+    public UserServiceImpl(UserService theUser){
+        userService = theUser;
     }
 
     @Autowired
@@ -29,24 +26,27 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public List<User> findAll() {
-        return userDAO.findAll();
+        return entityManager.createQuery("SELECT u FROM User u", User.class).getResultList();
     }
 
     @Override
     public User findById(int theId) {
-        return userDAO.findById(theId);
+        return entityManager.find(User.class, theId);
     }
 
-    @Transactional // you chance something in database
+    @Transactional
     @Override
     public User save(User theUser) {
-        return userDAO.save(theUser);
+        return userService.save(theUser);
     }
 
     @Transactional
     @Override
     public void deleteById(int theId) {
-        userDAO.deleteById(theId);
+         User user = entityManager.find(User.class, theId);
+         if (user != null) {
+             entityManager.remove(user);
+         }
     }
 
     @Override
