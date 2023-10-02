@@ -108,32 +108,38 @@ public class UserRestController {
     @Autowired
     private UserRepository userRepository;
 
+//    @PutMapping("/user/{id}")
+//    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+//        // Tìm đối tượng người dùng hiện tại trong cơ sở dữ liệu
+//        User existingUser = userRepository.findById(id).orElse(null);
+//
+//        // Kiểm tra xem người dùng có tồn tại không
+//        if (existingUser == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        // Sao chép các trường mà bạn muốn thay đổi từ đối tượng updatedUser vào đối tượng người dùng hiện tại
+//        if (updatedUser.getEmail() != null) {
+//            existingUser.setEmail(updatedUser.getEmail());
+//        }
+//        if (updatedUser.getFullName() != null) {
+//            existingUser.setFullName(updatedUser.getFullName());
+//        }
+//        if (updatedUser.getPhone() != null) {
+//            existingUser.setPhone(updatedUser.getPhone());
+//        }
+//        // Các trường khác cũng có thể được sao chép ở đây
+//
+//        // Lưu lại đối tượng người dùng đã được cập nhật vào cơ sở dữ liệu
+//        User savedUser = userRepository.save(existingUser);
+//
+//        return ResponseEntity.ok(savedUser);
+//    }
+
+    // Endpoint cho việc cập nhật thông tin người dùng dựa trên id
     @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        // Tìm đối tượng người dùng hiện tại trong cơ sở dữ liệu
-        User existingUser = userRepository.findById(id).orElse(null);
-
-        // Kiểm tra xem người dùng có tồn tại không
-        if (existingUser == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // Sao chép các trường mà bạn muốn thay đổi từ đối tượng updatedUser vào đối tượng người dùng hiện tại
-        if (updatedUser.getEmail() != null) {
-            existingUser.setEmail(updatedUser.getEmail());
-        }
-        if (updatedUser.getFullName() != null) {
-            existingUser.setFullName(updatedUser.getFullName());
-        }
-        if (updatedUser.getPhone() != null) {
-            existingUser.setPhone(updatedUser.getPhone());
-        }
-        // Các trường khác cũng có thể được sao chép ở đây
-
-        // Lưu lại đối tượng người dùng đã được cập nhật vào cơ sở dữ liệu
-        User savedUser = userRepository.save(existingUser);
-
-        return ResponseEntity.ok(savedUser);
+    public User updateUser(@PathVariable int id, @RequestBody User newData) {
+        return userService.updateUser(id, newData);
     }
 
     @DeleteMapping("/user/{userId}")

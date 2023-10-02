@@ -1,20 +1,20 @@
-package com.example.smallP.service.User;
+    package com.example.smallP.service.User;
 
-import com.example.smallP.entity.User;
+    import com.example.smallP.entity.User;
 
-import java.util.List;
+    import java.util.List;
 
-public interface UserService {
-    List<User> findAll();
+    public interface UserService {
+        List<User> findAll();
 
-    User findById (int theId);
+        User findById (int theId);
 
-    User save (User theUser);
+        User save (User theUser);
 
-    void deleteById(int theId);
+        void deleteById(int theId);
 
-    User findByEmail(String email);
+        User findByEmail(String email);
 
+        User updateUser(int userId, User newData);
 
-
-}
+    }

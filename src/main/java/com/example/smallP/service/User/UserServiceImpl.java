@@ -2,6 +2,7 @@ package com.example.smallP.service.User;
 
 
 import com.example.smallP.entity.User;
+import com.example.smallP.security.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -10,11 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
     private EntityManager entityManager;
     private UserService userService;
+
+    private UserRepository userRepository;
 
     public UserServiceImpl(UserService theUser){
         userService = theUser;
@@ -39,6 +43,34 @@ public class UserServiceImpl implements UserService {
     public User save(User theUser) {
         return userService.save(theUser);
     }
+
+    @Transactional
+    @Override
+    public User updateUser(int userId, User newData) {
+        User user = entityManager.find(User.class, userId);
+        if (user != null) {
+            // Kiểm tra và cập nhật các thông tin có thay đổi
+            if (newData.getFullName() != null) {
+                user.setFullName(newData.getFullName());
+            }
+
+            if (newData.getEmail() != null) {
+                user.setEmail(newData.getEmail());
+            }
+
+            if (newData.getPhone() != null) {
+                user.setPhone(newData.getPhone());
+            }
+
+            // Lưu thông tin người dùng đã cập nhật
+            entityManager.merge(user);
+
+            return user;
+        } else {
+            throw new RuntimeException("Không tìm thấy người dùng có id: " + userId);
+        }
+    }
+
 
     @Transactional
     @Override

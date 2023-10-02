@@ -25,8 +25,6 @@ public class BookRestController {
     }
 
 
-
-
     @GetMapping("/book")
     public ResponseEntity<ObjectNode> findAll(
             @RequestParam(required = false) Integer current,
@@ -42,7 +40,7 @@ public class BookRestController {
 
         // category
         if (category != null && category.length > 0) {
-            books = books.stream()
+            filteredBooks = filteredBooks.stream()
                     .filter(book -> Arrays.asList(category).contains(book.getCategory()))
                     .collect(Collectors.toList());
         }
@@ -52,17 +50,17 @@ public class BookRestController {
         if (sort != null) {
             if (sort.equals("-price")) {
                 // Sắp xếp từ cao đến thấp dựa trên giá
-                books.sort(Comparator.comparing(Book::getPrice).reversed());
+                filteredBooks.sort(Comparator.comparing(Book::getPrice).reversed());
             } else if (sort.equals("-updatedAt")) {
                 // Sắp xếp ngược lại dựa trên updatedAt
-                books.sort(Comparator.comparing(Book::getUpdateAt).reversed());
+                filteredBooks.sort(Comparator.comparing(Book::getUpdateAt).reversed());
             } else if (sort.equals("-sold")) {
                 // Sắp xếp ngược lại dựa trên số lượng đã bán (sold)
-                books.sort(Comparator.comparing(Book::getSold).reversed());
+                filteredBooks.sort(Comparator.comparing(Book::getSold).reversed());
             }
         } else {
             // Mặc định, sắp xếp từ thấp đến cao dựa trên giá
-            books.sort(Comparator.comparing(Book::getPrice));
+            filteredBooks.sort(Comparator.comparing(Book::getPrice));
         }
 
 
@@ -95,11 +93,11 @@ public class BookRestController {
         response.setResult(paginatedBooks);
 
 
-            // Đặt "data" bên trong một đối tượng JSON bổ sung
-            ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-            dataNode.set("data", objectMapper.valueToTree(response));
+        // Đặt "data" bên trong một đối tượng JSON bổ sung
+        ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+        dataNode.set("data", objectMapper.valueToTree(response));
 
-            return new ResponseEntity<>(dataNode, HttpStatus.OK);
+        return new ResponseEntity<>(dataNode, HttpStatus.OK);
     }
 
     @GetMapping("/book/{bookId}")
