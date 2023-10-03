@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -43,19 +44,42 @@ public class UserRestController {
     @GetMapping("/user")
     public ResponseEntity<ObjectNode> findAll(
             @RequestParam(required = false) Integer current,
-            @RequestParam(required = false) Integer pageSize
+            @RequestParam(required = false) Integer pageSize,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone
     ){
         ObjectMapper objectMapper = new ObjectMapper();
         List<User> users = userService.findAll();
 
-        int totalUsers = users.size();
+        List<User> filteredUsers = new ArrayList<>(users);
+
+        if (fullName != null && !fullName.isEmpty()) {
+            String searchText = fullName.toLowerCase(); // Chuyển đổi sang chữ thường để tìm kiếm không phân biệt hoa thường
+            filteredUsers = filteredUsers.stream()
+                    .filter(user -> user.getFullName().toLowerCase().contains(searchText))
+                    .collect(Collectors.toList());
+        }
+        if (email != null && !email.isEmpty()) {
+            String searchText = email.toLowerCase(); // Chuyển đổi sang chữ thường để tìm kiếm không phân biệt hoa thường
+            filteredUsers = filteredUsers.stream()
+                    .filter(user -> user.getEmail().toLowerCase().contains(searchText))
+                    .collect(Collectors.toList());
+        }
+        if (phone != null && !phone.isEmpty()) {
+            String searchText = phone.toLowerCase(); // Chuyển đổi sang chữ thường để tìm kiếm không phân biệt hoa thường
+            filteredUsers = filteredUsers.stream()
+                    .filter(user -> user.getPhone().contains(searchText))
+                    .collect(Collectors.toList());
+        }
+
+        int totalUsers = filteredUsers.size();
 
         // Kiểm tra nếu current và pageSize bị null, thì trả về toàn bộ dữ liệu
         if (current == null || pageSize == null) {
             current = 1; // Giá trị mặc định nếu current bị null
             pageSize = totalUsers; // Trả về tất cả nếu pageSize bị null
         }
-
 
         //current and pageSize
         int totalPages = (int) Math.ceil((double) totalUsers / pageSize);
@@ -108,33 +132,6 @@ public class UserRestController {
     @Autowired
     private UserRepository userRepository;
 
-//    @PutMapping("/user/{id}")
-//    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-//        // Tìm đối tượng người dùng hiện tại trong cơ sở dữ liệu
-//        User existingUser = userRepository.findById(id).orElse(null);
-//
-//        // Kiểm tra xem người dùng có tồn tại không
-//        if (existingUser == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        // Sao chép các trường mà bạn muốn thay đổi từ đối tượng updatedUser vào đối tượng người dùng hiện tại
-//        if (updatedUser.getEmail() != null) {
-//            existingUser.setEmail(updatedUser.getEmail());
-//        }
-//        if (updatedUser.getFullName() != null) {
-//            existingUser.setFullName(updatedUser.getFullName());
-//        }
-//        if (updatedUser.getPhone() != null) {
-//            existingUser.setPhone(updatedUser.getPhone());
-//        }
-//        // Các trường khác cũng có thể được sao chép ở đây
-//
-//        // Lưu lại đối tượng người dùng đã được cập nhật vào cơ sở dữ liệu
-//        User savedUser = userRepository.save(existingUser);
-//
-//        return ResponseEntity.ok(savedUser);
-//    }
 
     // Endpoint cho việc cập nhật thông tin người dùng dựa trên id
     @PutMapping("/user/{id}")

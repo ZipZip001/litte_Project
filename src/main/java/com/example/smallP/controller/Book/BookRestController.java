@@ -1,6 +1,7 @@
 package com.example.smallP.controller.Book;
 
 import com.example.smallP.entity.Book;
+import com.example.smallP.entity.User;
 import com.example.smallP.security.BookRepository;
 import com.example.smallP.service.Book.BookService;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 public class BookRestController {
     private BookService bookService;
 
-
+    @Autowired
     public BookRestController(BookService theBookService){
         bookService = theBookService;
     }
@@ -31,7 +32,8 @@ public class BookRestController {
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false ) String[] category,
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String maintext
+            @RequestParam(required = false) String maintext,
+            @RequestParam(required = false) String author
                 ){
         ObjectMapper objectMapper = new ObjectMapper();
         List<Book> books = bookService.findAll();
@@ -44,8 +46,6 @@ public class BookRestController {
                     .filter(book -> Arrays.asList(category).contains(book.getCategory()))
                     .collect(Collectors.toList());
         }
-//        int totalBooks = books.size();
-
 
         if (sort != null) {
             if (sort.equals("-price")) {
@@ -70,14 +70,20 @@ public class BookRestController {
                     .filter(book -> book.getMaintext().toLowerCase().contains(searchText))
                     .collect(Collectors.toList());
         }
+        if (author != null && !author.isEmpty()) {
+            String searchText = author.toLowerCase(); // Chuyển đổi sang chữ thường để tìm kiếm không phân biệt hoa thường
+            filteredBooks = filteredBooks.stream()
+                    .filter(book -> book.getAuthor().toLowerCase().contains(searchText))
+                    .collect(Collectors.toList());
+        }
         int totalBooks = filteredBooks.size();
 
 
         // Kiểm tra nếu current và pageSize bị null, thì trả về toàn bộ dữ liệu
-            if (current == null || pageSize == null) {
-                current = 1; // Giá trị mặc định nếu current bị null
-                pageSize = totalBooks; // Trả về tất cả nếu pageSize bị null
-            }
+        if (current == null || pageSize == null) {
+            current = 1; // Giá trị mặc định nếu current bị null
+            pageSize = totalBooks; // Trả về tất cả nếu pageSize bị null
+        }
 
         //current and pageSize
         int totalPages = (int) Math.ceil((double) totalBooks / pageSize);
@@ -127,12 +133,13 @@ public class BookRestController {
         return dbBook;
     }
 
-    @PutMapping("/book")
-    public Book updateBook(@RequestBody Book theBook){
+    @PutMapping("/book/{id}")
+    public Book updateBook(@PathVariable int id, @RequestBody Book theBook){
 
-        Book dbBook = bookService.save(theBook);
+        Book dbBook = bookService.updateBook(id, theBook);
         return  dbBook;
     }
+
 
     @DeleteMapping("/book/{bookId}")
     public String delete(@PathVariable int bookId){
