@@ -45,7 +45,10 @@ public class User {
     private Date updatedAt;
 
     // Constructors, getters, and setters
-
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
     public User(){
 
     }

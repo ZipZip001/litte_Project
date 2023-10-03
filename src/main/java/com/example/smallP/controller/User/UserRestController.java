@@ -48,11 +48,13 @@ public class UserRestController {
             @RequestParam(required = false) String fullName,
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String phone
+
     ){
         ObjectMapper objectMapper = new ObjectMapper();
         List<User> users = userService.findAll();
 
         List<User> filteredUsers = new ArrayList<>(users);
+
 
         if (fullName != null && !fullName.isEmpty()) {
             String searchText = fullName.toLowerCase(); // Chuyển đổi sang chữ thường để tìm kiếm không phân biệt hoa thường
@@ -138,6 +140,7 @@ public class UserRestController {
     public User updateUser(@PathVariable int id, @RequestBody User newData) {
         return userService.updateUser(id, newData);
     }
+
 
     @DeleteMapping("/user/{userId}")
     public String delete(@PathVariable int userId){

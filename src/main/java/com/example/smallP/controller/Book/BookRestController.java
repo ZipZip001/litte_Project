@@ -33,7 +33,9 @@ public class BookRestController {
             @RequestParam(required = false ) String[] category,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String maintext,
-            @RequestParam(required = false) String author
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
                 ){
         ObjectMapper objectMapper = new ObjectMapper();
         List<Book> books = bookService.findAll();
@@ -44,6 +46,12 @@ public class BookRestController {
         if (category != null && category.length > 0) {
             filteredBooks = filteredBooks.stream()
                     .filter(book -> Arrays.asList(category).contains(book.getCategory()))
+                    .collect(Collectors.toList());
+        }
+
+        if (minPrice != null && maxPrice != null) {
+            filteredBooks = filteredBooks.stream()
+                    .filter(book -> book.getPrice() >= minPrice && book.getPrice() <= maxPrice)
                     .collect(Collectors.toList());
         }
 
